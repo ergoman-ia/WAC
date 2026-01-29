@@ -73,44 +73,48 @@
             border-radius: 4px;
         }
 
-        /* [모바일 대응] 비주얼 영역 (스크롤 가능하게 처리) */
+                /* [모바일 대응] 비주얼 영역 (스크롤 가능하게 처리) */
         .visual-area {
-            position: relative;
-            width: 100%;
-            height: 750px;
-            /* 화면이 좁을 때 그림이 잘리지 않고 스크롤되도록 설정 */
-            overflow-x: auto; 
-            overflow-y: hidden;
-            background-color: #fff;
-        }
+    position: relative;
+    width: 100%;
+    height: auto; 
+    overflow: hidden; /* 스크롤바 제거 */
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+}
 
         /* SVG와 이미지 컨테이너 (스크롤 내부 고정 영역) */
         .visual-content {
-            position: relative;
-            width: 450px; /* SVG의 viewBox 너비와 맞춤 */
-            height: 750px;
-            margin: 0 auto; /* PC에선 중앙 정렬 */
-        }
+    position: relative;
+    width: 100%;
+    max-width: 450px; /* 최대 너비는 유지하되, 작으면 줄어듦 */
+    height: auto;
+    /* 450:750 비율 고정 (최신 브라우저 지원) */
+    aspect-ratio: 450 / 750; 
+    margin: 0 auto;
+}
 
-        .bg-img {
-            position: absolute;
-            top: 60px;
-            left: 130px;
-            width: auto;
-            height: 660px;
-            z-index: 1;
-            opacity: 0.9;
-            pointer-events: none; /* 이미지가 터치 방해 안 하게 */
-        }
+       .bg-img {
+    position: absolute;
+    /* 부모 크기 대비 %로 위치 및 크기 조정 */
+    top: 8%;      /* 60px / 750px */
+    left: 28.9%;  /* 130px / 450px */
+    width: auto;
+    height: 88%;  /* 660px / 750px */
+    z-index: 1;
+    opacity: 0.9;
+    pointer-events: none;
+}
 
         .overlay-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 450px; /* 고정 너비 유지 */
-            height: 750px;
-            z-index: 2;
-        }
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;  /* 부모 너비에 맞춤 */
+    height: 100%; /* 부모 높이에 맞춤 */
+    z-index: 2;
+}
 
         /* SVG 내부 요소 스타일 */
         .grid-line { stroke: #000; stroke-width: 2; }
@@ -544,4 +548,5 @@
 
 
 </html>
+
 
