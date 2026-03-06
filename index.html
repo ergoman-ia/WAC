@@ -323,6 +323,25 @@
         <div class="section-header">Step 3. 작업 조건 입력</div>
 
         <div class="input-row">
+            <label>▶ 몸통 비틀림 각도</label>
+        </div>
+        
+        <div class="indent-row">
+            <span class="indent-label" style="color:#0097a7;">└ 이동 전(시점) 비틀림:</span>
+            <select id="inputTwistStart">
+                <option value="1">45도 미만</option>
+                <option value="0.85">45도 이상</option>
+            </select>
+        </div>
+        <div class="indent-row">
+            <span class="indent-label"  style="color:#3949ab;">└ 이동 후(종점) 비틀림:</span>
+            <select id="inputTwistEnd">
+                <option value="1">45도 미만</option>
+                <option value="0.85">45도 이상</option>
+            </select>
+        </div>
+
+        <div class="input-row">
             <label>▶ 하루 작업시간 (중량물 취급작업 만):</label>
             <select id="inputDuration">
                 <option value="1h">1시간 이하</option>
@@ -342,26 +361,7 @@
                 <option value="f6">8-9회 / 분</option>
                 <option value="f7">10회 이상 / 분</option>
             </select>
-        </div>
-
-        <div class="input-row">
-            <label>▶ 몸통 비틀림 각도</label>
-        </div>
-        
-        <div class="indent-row">
-            <span class="indent-label" style="color:#0097a7;">└ 이동 전(시점) 비틀림:</span>
-            <select id="inputTwistStart">
-                <option value="1">45도 미만</option>
-                <option value="0.85">45도 이상</option>
-            </select>
-        </div>
-        <div class="indent-row">
-            <span class="indent-label"  style="color:#3949ab;">└ 이동 후(종점) 비틀림:</span>
-            <select id="inputTwistEnd">
-                <option value="1">45도 미만</option>
-                <option value="0.85">45도 이상</option>
-            </select>
-        </div>
+        </div>        
 
         <div class="result-panel">
             <div class="result-title">중량물 취급작업 평가결과</div>
@@ -539,3 +539,4 @@
 
 
 </html>
+
