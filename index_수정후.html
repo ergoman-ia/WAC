@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAC 중량물 취급작업 위험성 평가</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            margin: 0;
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            min-height: 800px;
+            background-color: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        .section-header {
+            background-color: #eee;
+            padding: 12px 20px;
+            font-weight: bold;
+            font-size: 18px;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            color: #333;
+        }
+
+        .input-row {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .input-row label {
+            font-weight: bold;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .input-row input,
+        .input-row select {
+            padding: 8px;
+            width: 140px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .visual-area {
+            position: relative;
+            width: 100%;
+            height: auto;
+            overflow: hidden;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+        }
+
+        .visual-content {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            aspect-ratio: 450 / 750;
+            margin: 0 auto;
+        }
+
+        .overlay-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .grid-line {
+            stroke: #000;
+            stroke-width: 2;
+        }
+
+        .grid-dashed {
+            stroke: #000;
+            stroke-width: 1.5;
+            stroke-dasharray: 6, 4;
+        }
+
+        .txt-label {
+            font-size: 16px;
+            font-weight: bold;
+            text-anchor: end;
+            dominant-baseline: middle;
+            fill: #333;
+        }
+
+        .txt-val {
+            font-size: 20px;
+            font-weight: bold;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .txt-unit {
+            font-size: 14px;
+            font-weight: normal;
+            pointer-events: none;
+        }
+
+        .zone-rect {
+            fill: transparent;
+            cursor: pointer;
+            transition: fill 0.2s;
+        }
+
+        .zone-rect.start-selected {
+            fill: rgba(0, 188, 212, 0.7);
+            stroke: #00838f;
+            stroke-width: 2px;
+        }
+
+        .zone-rect.end-selected {
+            fill: rgba(63, 81, 181, 0.7);
+            stroke: #1a237e;
+            stroke-width: 2px;
+        }
+
+        .zone-rect.start-selected.end-selected {
+            fill: url(#split-gradient) !important;
+            stroke: #333;
+            stroke-width: 2px;
+            stroke-dasharray: 4;
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            padding: 15px 10px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eee;
+        }
+
+        .mode-label {
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .mode-label input {
+            margin-right: 6px;
+        }
+
+        .radio-start {
+            color: #00838f;
+        }
+
+        .radio-end {
+            color: #283593;
+        }
+
+        .indent-row {
+            padding: 10px 20px 10px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #fafafa;
+            border-bottom: 1px solid #eee;
+        }
+
+        .indent-label {
+            font-size: 15px;
+            color: #555;
+        }
+
+        .indent-row input,
+        .indent-row select {
+            padding: 5px;
+            width: 130px;
+            font-size: medium;
+        }
+
+        .result-panel {
+            background-color: #e3f2fd;
+            padding: 20px;
+            margin-top: auto;
+            border-top: 2px solid #2196F3;
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #0d47a1;
+            text-align: center;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .result-val {
+            font-weight: bold;
+        }
+
+        .result-detail-box {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+
+        .detail-header {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .status-box {
+            margin-top: 15px;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            border-radius: 8px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            line-height: 1.5;
+        }
+
+        .status-danger {
+            color: white;
+            background-color: #d32f2f;
+            border-color: #b71c1c;
+        }
+
+        .status-safe {
+            color: white;
+            background-color: #388e3c;
+            border-color: #2e7d32;
+        }
+
+        .status-warn {
+            color: #7f6000;
+            background-color: #fff8e1;
+            border-color: #f9a825;
+        }
+
+        .improve-box {
+            margin-top: 14px;
+            background-color: #fff8e1;
+            border: 1px solid #ffe082;
+            border-left: 5px solid #f9a825;
+            border-radius: 6px;
+            padding: 12px 14px;
+        }
+
+        .improve-title {
+            font-weight: bold;
+            font-size: 15px;
+            color: #7f6000;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .improve-item {
+            font-size: 14px;
+            color: #5d4037;
+            line-height: 1.7;
+            padding: 3px 0;
+            border-bottom: 1px dashed #ffe082;
+        }
+
+        .improve-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 500px) {
+            body {
+                align-items: flex-start;
+            }
+
+            .container {
+                border: none;
+                box-shadow: none;
+                min-height: 100vh;
+            }
+
+            .input-row,
+            .indent-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .input-row label,
+            .indent-label {
+                margin-bottom: 5px;
+            }
+
+            .input-row input,
+            .input-row select,
+            .indent-row select {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .mode-selector {
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .mode-label {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div>
+            <h1 style="text-align: center;">WAC 중량물 취급작업 위험성 평가</h1>
+        </div>
+
+        <div class="section-header">Step 1. 취급 대상물 무게 입력</div>
+        <div class="input-row">
+            <label>▶ 취급 무게 (kg):</label>
+            <input type="number" id="inputWeight" placeholder="kg 단위 입력">
+        </div>
+
+        <div class="section-header">Step 2. 대상물 위치 선택 (시점/종점)</div>
+        <div class="input-row">
+            <label>▶ 시점과 종점에 놓여있는 위치를 각각 모두 선택</label>
+        </div>
+
+        <div class="mode-selector">
+            <label class="mode-label radio-start">
+                <input type="radio" name="selectMode" value="start" checked onclick="setMode('start')">
+                <span>이동 전(시점)</span>
+            </label>
+            <label class="mode-label radio-end">
+                <input type="radio" name="selectMode" value="end" onclick="setMode('end')">
+                <span>이동 후(종점)</span>
+            </label>
+        </div>
+
+        <div class="visual-area">
+            <div class="visual-content">
+                <svg class="overlay-svg" viewBox="0 0 450 750">
+                    <defs>
+                        <linearGradient id="split-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="50%" style="stop-color:rgba(0, 188, 212, 0.7); stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(63, 81, 181, 0.7); stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+
+                    <image href="human_bg.png" x="105" y="70" height="650" preserveAspectRatio="xMidYMax meet" />
+
+                    <rect class="zone-rect" data-constant="30" x="240" y="20" width="70" height="180"
+                        onclick="selectZone(this)" />
+                    <rect class="zone-rect" data-constant="18" x="310" y="20" width="60" height="180"
+                        onclick="selectZone(this)" />
+                    <rect class="zone-rect" data-constant="14" x="370" y="20" width="60" height="180"
+                        onclick="selectZone(this)" />
+                    <rect class="zone-rect" data-constant="32" x="240" y="200" width="70" height="140"
+                        onclick="selectZone(this)" />
+                    <rect class="zone-rect" data-constant="23" x="310" y="200" width="60" height="140"
+                        onclick="selectZone(this)" />
+                    <rect class="zone-rect" data-constant="18" x="370" y="200" width="60" height="140"
+                        onclick="selectZone(this)" />
+                    <rect class="zone-rect" data-constant="41" x="240" y="340" width="70" height="190"
+                        onclick="selectZone(this)" />
+                    <rect class="zone-rect" data-constant="25" x="310" y="340" width="60" height="190"
+                        onclick="selectZone(this)" />
+                    <rect class="zone-rect" data-constant="18" x="370" y="340" width="60" height="190"
+                        onclick="selectZone(this)" />
+                    <rect class="zone-rect" data-constant="32" x="240" y="530" width="70" height="190"
+                        onclick="selectZone(this)" />
+                    <rect class="zone-rect" data-constant="23" x="310" y="530" width="60" height="190"
+                        onclick="selectZone(this)" />
+                    <rect class="zone-rect" data-constant="16" x="370" y="530" width="60" height="190"
+                        onclick="selectZone(this)" />
+
+                    <line x1="20" x2="240" y1="20" y2="20" class="grid-dashed" />
+                    <line x1="20" x2="240" y1="200" y2="200" class="grid-dashed" />
+                    <line x1="20" x2="240" y1="340" y2="340" class="grid-dashed" />
+                    <line x1="20" x2="240" y1="530" y2="530" class="grid-dashed" />
+                    <line x1="20" x2="240" y1="720" y2="720" class="grid-dashed" />
+
+                    <line x1="240" x2="240" y1="20" y2="720" class="grid-line" />
+                    <line x1="310" x2="310" y1="20" y2="720" class="grid-line" />
+                    <line x1="370" x2="370" y1="20" y2="720" class="grid-line" />
+                    <line x1="430" x2="430" y1="20" y2="720" class="grid-line" />
+
+                    <line x1="240" x2="430" y1="20" y2="20" class="grid-line" />
+                    <line x1="240" x2="430" y1="200" y2="200" class="grid-line" />
+                    <line x1="240" x2="430" y1="340" y2="340" class="grid-line" />
+                    <line x1="240" x2="430" y1="530" y2="530" class="grid-line" />
+                    <line x1="240" x2="430" y1="720" y2="720" class="grid-line" />
+
+                    <text x="80" y="120" class="txt-label">어깨 위</text>
+                    <text x="80" y="270" class="txt-label">허리에서</text>
+                    <text x="80" y="290" class="txt-label">어깨</text>
+                    <text x="80" y="430" class="txt-label">무릎에서</text>
+                    <text x="80" y="450" class="txt-label">허리</text>
+                    <text x="80" y="630" class="txt-label">무릎 아래</text>
+
+                    <text x="275" y="125" class="txt-val">30</text>
+                    <text x="340" y="125" class="txt-val">18</text>
+                    <text x="400" y="125" class="txt-val">14 <tspan class="txt-unit">kg</tspan></text>
+                    <text x="275" y="300" class="txt-val">32</text>
+                    <text x="340" y="300" class="txt-val">23</text>
+                    <text x="400" y="300" class="txt-val">18 <tspan class="txt-unit">kg</tspan></text>
+                    <text x="275" y="460" class="txt-val">41</text>
+                    <text x="340" y="460" class="txt-val">25</text>
+                    <text x="400" y="460" class="txt-val">18 <tspan class="txt-unit">kg</tspan></text>
+                    <text x="275" y="635" class="txt-val">32</text>
+                    <text x="340" y="635" class="txt-val">23</text>
+                    <text x="400" y="635" class="txt-val">16 <tspan class="txt-unit">kg</tspan></text>
+
+                    <text x="240" y="740" style="text-anchor:middle; font-weight:bold;">0</text>
+                    <text x="310" y="740" style="text-anchor:middle; font-weight:bold;">18</text>
+                    <text x="380" y="740" style="text-anchor:middle; font-weight:bold;">30 <tspan
+                            style="font-weight:normal; font-size:14px;">cm</tspan></text>
+                </svg>
+            </div>
+        </div>
+
+        <div class="section-header">Step 3. 작업 조건 입력</div>
+
+        <div class="input-row">
+            <label>▶ 몸통 비틀림 각도</label>
+        </div>
+        <div class="indent-row">
+            <span class="indent-label" style="color:#0097a7;">└ 이동 전(시점) 비틀림:</span>
+            <select id="inputTwistStart">
+                <option value="1">45도 미만</option>
+                <option value="0.85">45도 이상</option>
+            </select>
+        </div>
+        <div class="indent-row">
+            <span class="indent-label" style="color:#3949ab;">└ 이동 후(종점) 비틀림:</span>
+            <select id="inputTwistEnd">
+                <option value="1">45도 미만</option>
+                <option value="0.85">45도 이상</option>
+            </select>
+        </div>
+
+        <div class="input-row">
+            <label>▶ 하루 작업시간 (중량물 취급작업 만):</label>
+            <select id="inputDuration">
+                <option value="1h">1시간 이하</option>
+                <option value="1-2h">1 ~ 2 시간</option>
+                <option value="2h+">2 시간 이상</option>
+            </select>
+        </div>
+
+        <div class="input-row">
+            <label>▶ 들기 횟수 (분당):</label>
+            <select id="inputFrequency">
+                <option value="f1">1회 / 2~5분</option>
+                <option value="f2">1회 / 분</option>
+                <option value="f3">2-3회 / 분</option>
+                <option value="f4">4-5회 / 분</option>
+                <option value="f5">6-7회 / 분</option>
+                <option value="f6">8-9회 / 분</option>
+                <option value="f7">10회 이상 / 분</option>
+            </select>
+        </div>
+
+        <div class="result-panel">
+            <div class="result-title">중량물 취급작업 평가결과</div>
+
+            <div class="result-detail-box" style="border-left: 5px solid #00bcd4;">
+                <span class="detail-header" style="color:#0097a7;">1. 이동 전(시점) 평가</span>
+                <div class="result-row">
+                    <span>권장무게(RWL):</span>
+                    <span id="txtStartFormula" style="font-size:14px; color:#666;">-</span>
+                </div>
+                <div class="result-row">
+                    <span>들기지수(LI):</span>
+                    <span id="resStart" class="result-val">-</span>
+                </div>
+            </div>
+
+            <div class="result-detail-box" style="border-left: 5px solid #3f51b5;">
+                <span class="detail-header" style="color:#3949ab;">2. 이동 후(종점) 평가</span>
+                <div class="result-row">
+                    <span>권장무게(RWL):</span>
+                    <span id="txtEndFormula" style="font-size:14px; color:#666;">-</span>
+                </div>
+                <div class="result-row">
+                    <span>들기지수(LI):</span>
+                    <span id="resEnd" class="result-val">-</span>
+                </div>
+            </div>
+
+            <div id="resStatus" class="status-box">
+                조건을 입력하고 시점/종점 위치를 모두 선택하세요.
+            </div>
+
+            <div id="improveBox" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const frequencyTable = {
+            'f1': [1.0, 0.95, 0.85],
+            'f2': [0.95, 0.90, 0.75],
+            'f3': [0.90, 0.85, 0.65],
+            'f4': [0.85, 0.70, 0.45],
+            'f5': [0.75, 0.50, 0.25],
+            'f6': [0.60, 0.35, 0.15],
+            'f7': [0.30, 0.20, 0.00]
+        };
+
+        const durationMap = { '1h': 0, '1-2h': 1, '2h+': 2 };
+        let currentMode = 'start';
+        let startZoneElement = null;
+        let endZoneElement = null;
+
+        function setMode(mode) { currentMode = mode; }
+
+        function selectZone(element) {
+            if (currentMode === 'start') {
+                if (startZoneElement) startZoneElement.classList.remove('start-selected');
+                element.classList.add('start-selected');
+                startZoneElement = element;
+            } else {
+                if (endZoneElement) endZoneElement.classList.remove('end-selected');
+                element.classList.add('end-selected');
+                endZoneElement = element;
+            }
+            calculateRisk();
+        }
+
+        // ★ 수정: LI > 1인 쪽만, 높은 LI 우선으로 개선 항목 생성
+        function generateImprovements(weight, resultStart, resultEnd, twistStart, twistEnd, fm) {
+            var liStart = parseFloat(resultStart.li || 0);
+            var liEnd = parseFloat(resultEnd.li || 0);
+
+            // 시점/종점을 LI 내림차순으로 정렬 → 더 나쁜 쪽 먼저 처리
+            var points = [];
+            if (liStart > 1.0) points.push({ label: '이동 전(시점)', li: liStart, zoneEl: startZoneElement, twist: twistStart });
+            if (liEnd > 1.0) points.push({ label: '이동 후(종점)', li: liEnd, zoneEl: endZoneElement, twist: twistEnd });
+            points.sort(function (a, b) { return b.li - a.li; });
+
+            var items = [];
+
+            if (points.length > 0) {
+                var p = points[0];
+                var c = parseFloat(p.zoneEl.getAttribute('data-constant'));
+                var x = parseInt(p.zoneEl.getAttribute('x'));
+
+                // 작업영역 개선
+                if (c < 41) {
+                    var bestRwl = (41 * fm * p.twist).toFixed(1);
+                    items.push('[' + p.label + ' - 작업영역] 현재 구역의 권장무게가 낮습니다. 권장무게를 최대 ' + bestRwl + 'kg까지 높이려면 ① 물체를 몸에 밀착(0~18cm 이내)하고 ② 작업 높이를 무릎~허리 사이로 조정하세요. 작업대 높이 조절, 팔레트 스탠드·리프트 테이블 도입을 검토하세요.');
+                } else if (x !== 240) {
+                    items.push('[' + p.label + ' - 작업영역] 물체가 몸에서 멀리 있어 권장무게가 낮아지고 있습니다. ① 작업대를 몸 가까이 배치 ② 파지 보조도구(흡착기, 집게) 활용 ③ 물체 크기 축소(분할 포장)를 검토하세요.');
+                }
+
+                // 비틀림 개선
+                if (p.twist < 1.0) {
+                    items.push('[' + p.label + ' - 비틀림] 몸통 비틀림이 45도 이상입니다. ① 발 방향을 들기 방향에 맞추기 ② 작업대 방향 재배치 ③ 컨베이어·팔레트 위치 변경으로 비틀림을 45도 미만으로 줄이세요.');
+                }
+            }
+
+            // 빈도/시간 — 시점/종점 공통 영향이므로 한 번만 추가
+            if (points.length > 0) {
+                if (fm <= 0.45) {
+                    items.push('[작업 빈도/시간] 빈도계수(FM=' + fm + ')가 매우 낮아 권장무게를 크게 감소시키고 있습니다. ① 들기 횟수 감소(컨베이어·자동화 도입) ② 작업시간 2시간 미만으로 단축 ③ 작업자 교대 주기 단축 ④ 중간 휴식 10분 이상 추가 ⑤ 중량물 취급 작업과 경량 작업을 교대 편성하세요.');
+                } else if (fm <= 0.75) {
+                    items.push('[작업 빈도/시간] 빈도계수(FM=' + fm + ')가 낮아 권장무게에 영향을 주고 있습니다. ① 작업 속도 조절(분당 횟수 감소) ② 2인 1조 작업 전환 ③ 보조 리프트·핸드카트 도입으로 들기 횟수를 줄이세요.');
+                }
+
+                // 목표 안전 무게 — 더 나쁜 쪽(points[0]) 기준
+                var worstC = parseFloat(points[0].zoneEl.getAttribute('data-constant'));
+                var worstTwist = points[0].twist;
+                var safeWeight = (worstC * fm * worstTwist).toFixed(1);
+                items.push('[목표 안전 무게] 현재 가장 위험한 구간(' + points[0].label + ') 기준 안전 최대 무게는 약 ' + safeWeight + 'kg입니다. 현재 취급 무게(' + weight + 'kg) 초과분에 대해 ① 분할 포장·운반 ② 전동 리프터·호이스트·진공 리프터 도입 ③ 경사로·롤러 컨베이어 활용으로 들기 작업 자체를 줄이는 것을 우선 검토하세요. 또한 ① 휴식시간 및 작업시간의 적정 배분, ② 2인 1조 작업, ③ 작업순환 등 관리적인 방안도 고려하세요.');
+            }
+
+            return items;
+        }
+
+        function renderImproveBox(items) {
+            var improveBox = document.getElementById('improveBox');
+            if (!items || items.length === 0) {
+                improveBox.style.display = 'none';
+                return;
+            }
+            var html = '<div class="improve-box">';
+            html += '<span class="improve-title">💡 개선 사항 추천</span>';
+            for (var i = 0; i < items.length; i++) {
+                html += '<div class="improve-item">' + (i + 1) + '. ' + items[i] + '</div>';
+            }
+            html += '</div>';
+            improveBox.innerHTML = html;
+            improveBox.style.display = 'block';
+        }
+
+        function calculateRisk() {
+            const durationKey = document.getElementById('inputDuration').value;
+            const freqKey = document.getElementById('inputFrequency').value;
+            const durationIndex = durationMap[durationKey];
+            const frequencyMultiplier = frequencyTable[freqKey][durationIndex];
+            const twistStart = parseFloat(document.getElementById('inputTwistStart').value);
+            const twistEnd = parseFloat(document.getElementById('inputTwistEnd').value);
+
+            const txtStartFormula = document.getElementById('txtStartFormula');
+            const resStart = document.getElementById('resStart');
+            const txtEndFormula = document.getElementById('txtEndFormula');
+            const resEnd = document.getElementById('resEnd');
+            const elStatus = document.getElementById('resStatus');
+            const improveBox = document.getElementById('improveBox');
+
+            // 무게 유효성 검사
+            const weight = parseFloat(document.getElementById('inputWeight').value);
+            if (isNaN(weight) || weight <= 0) {
+                txtStartFormula.innerText = '-'; resStart.innerText = '-';
+                txtEndFormula.innerText = '-'; resEnd.innerText = '-';
+                elStatus.innerHTML = '⚠️ Step 1에서 취급 무게(kg)를 먼저 입력해 주세요.';
+                elStatus.className = 'status-box status-warn';
+                improveBox.style.display = 'none';
+                return;
+            }
+
+            function calcSingle(zoneEl, twistVal) {
+                if (!zoneEl) return { rwl: null, li: null, formula: '입력 대기', valid: false, fmZero: false };
+                const constant = parseFloat(zoneEl.getAttribute('data-constant'));
+                if (frequencyMultiplier === 0) {
+                    return {
+                        rwl: null, li: null,
+                        formula: constant + ' × <b style="color:#d32f2f;">0 (FM=0)</b> × ' + twistVal + ' = <b>추천 무게 없음</b>',
+                        valid: true, fmZero: true
+                    };
+                }
+                const rwl = (constant * frequencyMultiplier * twistVal).toFixed(2);
+                const li = (weight / parseFloat(rwl)).toFixed(2);
+                const formula = constant + ' × ' + frequencyMultiplier + ' × ' + twistVal + ' = <b>' + rwl + ' kg</b>';
+                return { rwl: rwl, li: li, formula: formula, valid: true, fmZero: false };
+            }
+
+            const resultStart = calcSingle(startZoneElement, twistStart);
+            const resultEnd = calcSingle(endZoneElement, twistEnd);
+
+            if (resultStart.valid) {
+                txtStartFormula.innerHTML = resultStart.formula;
+                if (resultStart.fmZero) {
+                    resStart.innerHTML = '<span style="color:#d32f2f;">추천 무게 없음</span>';
+                } else {
+                    const wDisp = Number.isInteger(weight) ? weight : weight.toFixed(2);
+                    resStart.innerText = wDisp + ' / ' + resultStart.rwl + ' = ' + resultStart.li;
+                }
+            } else { txtStartFormula.innerText = '-'; resStart.innerText = '-'; }
+
+            if (resultEnd.valid) {
+                txtEndFormula.innerHTML = resultEnd.formula;
+                if (resultEnd.fmZero) {
+                    resEnd.innerHTML = '<span style="color:#d32f2f;">추천 무게 없음</span>';
+                } else {
+                    const wDisp = Number.isInteger(weight) ? weight : weight.toFixed(2);
+                    resEnd.innerText = wDisp + ' / ' + resultEnd.rwl + ' = ' + resultEnd.li;
+                }
+            } else { txtEndFormula.innerText = '-'; resEnd.innerText = '-'; }
+
+            if (resultStart.valid && resultEnd.valid) {
+
+                // FM=0 처리
+                if (resultStart.fmZero || resultEnd.fmZero) {
+                    elStatus.innerHTML =
+                        '⛔ 추천 무게 없음 (FM = 0)' +
+                        '<div style="font-size:15px; font-weight:normal; margin-top:8px;">분당 10회 이상 작업을 2시간 이상 하지 않도록 해야 합니다.</div>';
+                    elStatus.className = 'status-box status-danger';
+                    var fmZeroItems = [];
+                    if (twistStart < 1.0) fmZeroItems.push('[이동 전 비틀림] 45도 이상 비틀림을 줄이세요. 발 방향을 물체 쪽으로 맞추거나 작업대 위치를 조정하세요.');
+                    if (twistEnd < 1.0) fmZeroItems.push('[이동 후 비틀림] 45도 이상 비틀림을 줄이세요. 내려놓는 방향으로 발을 먼저 돌리거나 설비 위치를 변경하세요.');
+                    fmZeroItems.push('[작업 빈도/시간] 들기 횟수를 줄이거나 작업시간을 2시간 미만으로 단축하고, 중간 휴식을 추가하세요.');
+                    fmZeroItems.push('[목표 안전 무게] 작업 빈도 및 시간을 줄인 후 재평가하여 안전한 최대 무게를 확인하세요.');
+                    renderImproveBox(fmZeroItems);
+                    return;
+                }
+
+                const liStart = parseFloat(resultStart.li);
+                const liEnd = parseFloat(resultEnd.li);
+                const maxLi = Math.max(liStart, liEnd);
+
+                let statusHTML = '';
+                let statusClass = '';
+
+                if (maxLi < 1.0) {
+                    statusHTML = '적정 (안전)';
+                    statusClass = 'status-safe';
+                    // ★ LI ≤ 1.0: 개선 박스 숨김
+                    improveBox.style.display = 'none';
+                } else {
+                    statusHTML = '개선 필요 (최대 LI: ' + maxLi + ')';
+                    statusClass = 'status-danger';
+                    if (liStart > liEnd) {
+                        statusHTML += '<div style="font-size:16px; margin-top:5px; font-weight:normal;">👉 \'이동 전\' 자세가 더 위험합니다.</div>';
+                    } else if (liEnd > liStart) {
+                        statusHTML += '<div style="font-size:16px; margin-top:5px; font-weight:normal;">👉 \'이동 후\' 자세가 더 위험합니다.</div>';
+                    } else {
+                        statusHTML += '<div style="font-size:16px; margin-top:5px; font-weight:normal;">👉 시점/종점 모두 위험합니다.</div>';
+                    }
+                    // ★ LI >= 1인 쪽만, 높은 LI 우선으로 개선 항목 생성
+                    var improvements = generateImprovements(weight, resultStart, resultEnd, twistStart, twistEnd, frequencyMultiplier);
+                    renderImproveBox(improvements);
+                }
+
+                elStatus.innerHTML = statusHTML;
+                elStatus.className = 'status-box ' + statusClass;
+
+            } else {
+                elStatus.innerText = '조건을 입력하고 시점(하늘색)과 종점(파란색)을 모두 선택하세요.';
+                elStatus.className = 'status-box';
+                improveBox.style.display = 'none';
+            }
+        }
+
+        const inputIds = ['inputWeight', 'inputDuration', 'inputFrequency', 'inputTwistStart', 'inputTwistEnd'];
+        inputIds.forEach(function (id) {
+            document.getElementById(id).addEventListener('change', calculateRisk);
+            document.getElementById(id).addEventListener('input', calculateRisk);
+        });
+    </script>
+</body>
+
+</html>
